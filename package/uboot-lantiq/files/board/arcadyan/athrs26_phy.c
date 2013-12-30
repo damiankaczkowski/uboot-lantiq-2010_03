@@ -385,7 +385,7 @@ athrs26_phy_setup(int ethUnit)
         }
 
         phy_reg_read(ATHR_PHYBASE(phyUnit), ATHR_PHYADDR(phyUnit), 
-                    ATHR_PHY_SPEC_STATUS, &regVal);
+                    ATHR_PHY_SPEC_STATUS, (short unsigned int *) &regVal);
         DRV_PRINT(DRV_DEBUG_PHYSETUP,
             ("eth%d: Phy Specific Status=%4.4x\n", ethUnit, regVal)); 
     }

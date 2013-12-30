@@ -10,6 +10,10 @@
 
 #define CONFIG_AR8216_SWITCH	1
 
+#define CONFIG_BUTTON_PORT1
+#define CONFIG_BUTTON_PIN	30
+#define CONFIG_BUTTON_LEVEL	0
+
 #include "arcadyan-common.h"
 
 #endif

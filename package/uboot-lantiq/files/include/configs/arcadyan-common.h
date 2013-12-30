@@ -64,8 +64,8 @@
 
 #undef CONFIG_EXTRA_ENV_SETTINGS                                       
 #define CONFIG_EXTRA_ENV_SETTINGS                                       \
-        "ram_addr=0x80500000\0"                                         \
-        "kernel_addr=0xb0020000\0"                                      \
+        CONFIG_RAM_ADDR_ENV                                             \
+        CONFIG_KERNEL_ADDR_ENV                                          \
         "flashargs=setenv bootargs rootfstype=squashfs,jffs2\0"         \
         "nfsargs=setenv bootargs root=/dev/nfs rw "                     \
                 "nfsroot=${serverip}:${rootpath} \0"                    \
@@ -84,8 +84,8 @@
                 "bootm ${ram_addr}\0"                                   \
         "load_kernel=tftp ${ram_addr} "                                 \
                 "${tftppath}openwrt-ifxmips-uImage\0"                   \
-        "update_uboot=tftp 0x80500000 ${tftppath}u-boot-" CONFIG_ARCADYAN ".bin;era 0xb0000000 +${filesize};" \
-                "cp.b 0x80500000 0xb0000000 ${filesize}\0" \
+        "update_uboot=tftp ${ram_addr} ${tftppath}u-boot-" CONFIG_ARCADYAN ".bin;era 0xb0000000 +${filesize};" \
+                "cp.b ${ram_addr} 0xb0000000 ${filesize}\0" \
         "update_openwrt=tftp ${ram_addr} "                              \
                 "${tftppath}" CONFIG_ARCADYAN "-squashfs.image;"            \
                 "era ${kernel_addr} +${filesize};"                      \

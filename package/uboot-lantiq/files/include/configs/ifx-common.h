@@ -158,8 +158,18 @@
 #define CONFIG_ENV_IS_IN_FLASH		1
 
 /* Address and size of Primary Environment Sector	*/
+#ifndef CONFIG_ENV_ADDR
 #define CONFIG_ENV_ADDR			0xB0010000
+#endif
+#ifndef CONFIG_ENV_SIZE
 #define CONFIG_ENV_SIZE			0x10000
+#endif
+#ifndef CONFIG_RAM_ADDR_ENV
+#define CONFIG_RAM_ADDR_ENV	"ram_addr=0x80500000\0"
+#endif
+#ifndef CONFIG_KERNEL_ADDR_ENV
+#define CONFIG_KERNEL_ADDR_ENV	"kernel_addr=0xB0020000\0"
+#endif
 
 #ifdef CONFIG_FLASH_CFI_DRIVER
 #define CONFIG_SYS_FLASH_CFI

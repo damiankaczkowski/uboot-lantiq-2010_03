@@ -14,6 +14,12 @@
 #define CONFIG_BUTTON_PIN	12
 #define CONFIG_BUTTON_LEVEL	0
 
+#define CONFIG_ENV_ADDR			0xB0040000
+#define CONFIG_ENV_SIZE			0x20000
+
+#define CONFIG_KERNEL_ADDR_ENV	"kernel_addr=0xB0060000\0"
+#define CONFIG_RAM_ADDR_ENV	"ram_addr=0x80100000\0"
+
 #include "arcadyan-common.h"
 
 #endif

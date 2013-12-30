@@ -39,7 +39,7 @@
  SRCS	:= $(COBJS:.o=.c)
 --- a/Makefile
 +++ b/Makefile
-@@ -3414,6 +3414,42 @@
+@@ -3414,6 +3414,43 @@
  ## MIPS32 ifxcpe
  #########################################################################
  
@@ -76,6 +76,7 @@
 +$(eval $(call arcadyan, arv4519PW%config))
 +$(eval $(call arcadyan, arv7510PW22%config))
 +$(eval $(call arcadyan, arv7518PW%config))
++$(eval $(call arcadyan, arv7525PW%config))
 +$(eval $(call arcadyan, arv752DPW%config))
 +$(eval $(call arcadyan, arv752DPW22%config))
 +

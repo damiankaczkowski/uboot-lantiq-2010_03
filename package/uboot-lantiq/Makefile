@@ -73,6 +73,9 @@ Package/uboot-lantiq-arv7510PW22_brnboot=$(call Package/uboot-lantiq-template,ar
 Package/uboot-lantiq-arv7518PW_flash=$(call Package/uboot-lantiq-template,arv7518PW_flash,NOR)
 Package/uboot-lantiq-arv7518PW_ramboot=$(call Package/uboot-lantiq-template,arv7518PW_ramboot,RAM)
 Package/uboot-lantiq-arv7518PW_brnboot=$(call Package/uboot-lantiq-template,arv7518PW_brnboot,BRN)
+Package/uboot-lantiq-arv7525PW_flash=$(call Package/uboot-lantiq-template,arv7525PW_flash,NOR)
+Package/uboot-lantiq-arv7525PW_ramboot=$(call Package/uboot-lantiq-template,arv7525PW_ramboot,RAM)
+Package/uboot-lantiq-arv7525PW_brnboot=$(call Package/uboot-lantiq-template,arv7525PW_brnboot,BRN)
 Package/uboot-lantiq-arv752DPW_flash=$(call Package/uboot-lantiq-template,arv752DPW_flash,NOR)
 Package/uboot-lantiq-arv752DPW_ramboot=$(call Package/uboot-lantiq-template,arv752DPW_ramboot,RAM)
 Package/uboot-lantiq-arv752DPW_brnboot=$(call Package/uboot-lantiq-template,arv752DPW_brnboot,BRN)
@@ -89,6 +92,7 @@ DDR_CONFIG_arv4525PW_ramboot:=arcadyan_psc166_32
 DDR_CONFIG_arv452CPW_ramboot:=arcadyan_psc166_32
 DDR_CONFIG_arv7510PW22_ramboot:=arcadyan_psc166_64
 DDR_CONFIG_arv7518PW_ramboot:=arcadyan_psc166_64
+DDR_CONFIG_arv7525PW_ramboot:=arcadyan_psc166_32
 DDR_CONFIG_arv752DPW_ramboot:=arcadyan_psc166_64
 DDR_CONFIG_arv752DPW22_ramboot:=arcadyan_psc166_64
 
@@ -178,6 +182,9 @@ $(eval $(call BuildPackage,uboot-lantiq-arv7510PW22_ramboot))
 $(eval $(call BuildPackage,uboot-lantiq-arv7518PW_flash))
 $(eval $(call BuildPackage,uboot-lantiq-arv7518PW_brnboot))
 $(eval $(call BuildPackage,uboot-lantiq-arv7518PW_ramboot))
+$(eval $(call BuildPackage,uboot-lantiq-arv7525PW_flash))
+$(eval $(call BuildPackage,uboot-lantiq-arv7525PW_brnboot))
+$(eval $(call BuildPackage,uboot-lantiq-arv7525PW_ramboot))
 $(eval $(call BuildPackage,uboot-lantiq-arv752DPW_flash))
 $(eval $(call BuildPackage,uboot-lantiq-arv752DPW_brnboot))
 $(eval $(call BuildPackage,uboot-lantiq-arv752DPW_ramboot))

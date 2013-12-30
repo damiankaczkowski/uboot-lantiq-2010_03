@@ -1,0 +1,459 @@
+diff -uprN a/board/arcadyan/board.c b/board/arcadyan/board.c
+--- a/board/arcadyan/board.c	2013-12-30 03:55:04.489191087 +0100
++++ b/board/arcadyan/board.c	2013-12-30 14:39:44.533106347 +0100
+@@ -371,7 +371,7 @@ int do_http_upgrade(const unsigned char
+ 		return -1;
+ 	}
+ 	/* write the image to the flash */
+-	puts("http ugrade ...\n");
++	puts("http upgrade ...\n");
+ 	sprintf(buf, "era ${kernel_addr} +0x%lx; cp.b ${ram_addr} ${kernel_addr} 0x%lx", size, size);
+ 	return run_command(buf, 0);
+ }
+@@ -384,16 +384,15 @@ int do_http_progress(const int state)
+ 		puts("http start\n");
+ 		break;
+ 		case HTTP_PROGRESS_TIMEOUT:
+-		puts(".");
+ 		break;
+ 		case HTTP_PROGRESS_UPLOAD_READY:
+ 		puts("http upload ready\n");
+ 		break;
+ 		case HTTP_PROGRESS_UGRADE_READY:
+-		puts("http ugrade ready\n");
++		puts("http upgrade ready\n");
+ 		break;
+ 		case HTTP_PROGRESS_UGRADE_FAILED:
+-		puts("http ugrade failed\n");
++		puts("http upgrade failed\n");
+ 		break;
+ 	}
+ 	return 0;
+diff -uprN a/common/cmd_net.c b/common/cmd_net.c
+--- a/common/cmd_net.c	2013-12-30 03:55:04.341191094 +0100
++++ b/common/cmd_net.c	2013-12-30 03:56:14.180445056 +0100
+@@ -51,7 +51,7 @@ int do_httpd (cmd_tbl_t *cmdtp, int flag
+ 
+ U_BOOT_CMD(
+ 	httpd,	1,	1,	do_httpd,
+-	"httpd\t- start webserver", ""
++	"httpd web server", ""
+ );
+ #endif
+ 
+diff -uprN a/net/httpd.c b/net/httpd.c
+--- a/net/httpd.c	2013-12-30 03:55:04.561191084 +0100
++++ b/net/httpd.c	2013-12-30 03:57:27.645199025 +0100
+@@ -11,15 +11,10 @@
+ #include "uip-0.9/uip.h"
+ #include "uip-0.9/uip_arp.h"
+ 
+-
+ #if defined(CONFIG_CMD_HTTPD)
+-
+-#define TIMEOUT		5
+-
+ static int arptimer = 0;
+ 
+-void
+-HttpdHandler (void)
++void HttpdHandler (void)
+ {
+ 	int i;
+ 	for(i = 0; i < UIP_CONNS; i++) {
+@@ -35,20 +30,9 @@ HttpdHandler (void)
+ 	}
+ }
+ 
+-#if 0
+-static void
+-HttpdTimeout (void)
+-{
+-	puts ("T ");
+-	NetSetTimeout (TIMEOUT * 1000, HttpdTimeout);
+-}
+-#endif
+-
+-void
+-HttpdStart (void)
++void HttpdStart (void)
+ {
+ 	uip_init();
+ 	httpd_init();
+ }
+-
+ #endif
+diff -uprN a/net/net.c b/net/net.c
+--- a/net/net.c	2013-12-30 03:55:04.561191084 +0100
++++ b/net/net.c	2013-12-30 04:07:15.662330359 +0100
+@@ -1944,9 +1944,7 @@ ushort getenv_VLAN(char *var)
+ }
+ 
+ #if defined(CONFIG_CMD_HTTPD)
+-
+-void
+-NetSendHttpd(void)
++void NetSendHttpd(void)
+ {
+ 	volatile uchar *tmpbuf = NetTxPacket;
+ 	int i;
+@@ -1961,21 +1959,18 @@ NetSendHttpd(void)
+ 	eth_send(NetTxPacket, uip_len);
+ }
+ 
+-#define BUF ((struct uip_eth_hdr *)&uip_buf[0])
+-
+-void
+-NetReceiveHttpd(volatile uchar * inpkt, int len)
++void NetReceiveHttpd(volatile uchar * inpkt, int len)
+ {
+ 	memcpy(uip_buf, (const void *)inpkt, len);
+ 	uip_len = len;
+-	if(BUF->type == htons(UIP_ETHTYPE_IP)) {
++	if(((struct uip_eth_hdr *)&uip_buf[0])->type == htons(UIP_ETHTYPE_IP)) {
+ 		uip_arp_ipin();
+ 		uip_input();
+ 		if(uip_len > 0) {
+ 			uip_arp_out();
+ 			NetSendHttpd();
+ 		}
+-	} else if(BUF->type == htons(UIP_ETHTYPE_ARP)) {
++	} else if(((struct uip_eth_hdr *)&uip_buf[0])->type == htons(UIP_ETHTYPE_ARP)) {
+ 		uip_arp_arpin();
+ 		if(uip_len > 0) {
+ 			NetSendHttpd();
+@@ -1983,8 +1978,7 @@ NetReceiveHttpd(volatile uchar * inpkt,
+ 	}
+ }
+ 
+-int
+-NetLoopHttpd(void)
++int NetLoopHttpd(void)
+ {
+ 	unsigned long long tout = 0;
+ 	bd_t *bd = gd->bd;
+@@ -2055,16 +2049,24 @@ restart:
+ 	NetOurVLAN = getenv_VLAN("vlan");
+ 	NetOurNativeVLAN = getenv_VLAN("nvlan");
+ 
+-	printf("starting httpd server from server %ld.%ld.%ld.%ld\n",
+-		(bd->bi_ip_addr & 0xff000000) >> 24,
+-		(bd->bi_ip_addr & 0x00ff0000) >> 16,
+-		(bd->bi_ip_addr & 0x0000ff00) >> 8,
+-		(bd->bi_ip_addr & 0x000000ff));
++	ip[0] = ((bd->bi_ip_addr & 0xffff0000) >> 16);
++	ip[1] = (bd->bi_ip_addr & 0x0000ffff);
++
++	printf("eth_addr: %02x:%02x:%02x:%02x:%02x:%02x\n",
++		eaddr.addr[0],
++		eaddr.addr[1],
++		eaddr.addr[2],
++		eaddr.addr[3],
++		eaddr.addr[4],
++		eaddr.addr[5]);
++	printf("ip_addr: %d.%d.%d.%d\n",
++		(ip[0] >> 8) & 0xff,
++		ip[0] & 0xff,
++		(ip[1] >> 8) & 0xff,
++		ip[1] & 0xff);
+ 
+ 	HttpdStart();
+ 
+-	ip[0] = ((bd->bi_ip_addr & 0xffff0000) >> 16);
+-	ip[1] = (bd->bi_ip_addr & 0x0000ffff);
+ 	uip_sethostaddr(ip);
+ 
+ 	do_http_progress(HTTP_PROGRESS_START);
+@@ -2085,11 +2087,13 @@ restart:
+ 
+ 		if (ctrlc()) {
+ 			eth_halt();
++			httpd_upload_complete = 0;
++			upload_running = 0;
++			https_running = 0;
+ 			puts ("\nAbort\n");
+-			return (-1);
++			return -1;
+ 		}
+ 
+-
+ 		if(!httpd_upload_complete)
+ 			continue;
+ 		printf("Bytes transferred = %ld (%lx hex)\n",
+@@ -2109,7 +2113,6 @@ restart:
+ 	NetBootFileXferSize = 0;
+ 	httpd_upload_complete = 0;
+ 	upload_running = 0;
+-//	free(httpd_upload_data);
+ 
+ 	do_http_progress(HTTP_PROGRESS_UGRADE_FAILED);
+ 
+@@ -2117,5 +2120,4 @@ restart:
+ 
+ 	return -1;
+ }
+-
+ #endif
+diff -uprN a/net/uip-0.9/fsdata.c b/net/uip-0.9/fsdata.c
+--- a/net/uip-0.9/fsdata.c	2013-12-30 03:55:04.561191084 +0100
++++ b/net/uip-0.9/fsdata.c	2013-12-30 04:02:04.429302147 +0100
+@@ -6,7 +6,7 @@ static const char data_flashing_html[] =
+ "<html>\n"
+ "\t<head>\n"
+ "\t\t<title>\n"
+-"\t\t\tFailsafe UI\n"
++"\t\t\tU-Boot\n"
+ "\t\t</title>\n"
+ "\t</head>\n"
+ "\t<body>\n"
+@@ -22,13 +22,12 @@ static const char data_fail_html[] =
+ "<html>\n"
+ "\t<head>\n"
+ "\t\t<title>\n"
+-"\t\t\tFailsafe UI\n"
++"\t\t\tU-Boot\n"
+ "\t\t</title>\n"
+ "\t</head>\n"
+ "\t<body>\n"
+ "\t\t<h1>Flashing failed</h1>\n"
+ "\t\tERROR - the image you uploaded failed to pass verification.<br>\n"
+-"\t\tPlease make sure to use an official update provided by http://lantiq.com/\n"
+ "\t</body>\n"
+ "</html>\n";
+ 
+@@ -40,7 +39,7 @@ static const char data_404_html[] =
+ "<html>\n"
+ "\t<head>\n"
+ "\t\t<title>\n"
+-"\t\t\tFailsafe UI\n"
++"\t\t\tU-Boot\n"
+ "\t\t</title>\n"
+ "\t</head>\n"
+ "\t<body>\n"
+@@ -56,11 +55,11 @@ static const char data_index_html[] =
+ "<html>\n"
+ "\t<head>\n"
+ "\t\t<title>\n"
+-"\t\t\tFailsafe UI\n"
++"\t\t\tU-Boot\n"
+ "\t\t</title>\n"
+ "\t</head>\n"
+ "\t<body>\n"
+-"\t\t<h1>Failsafe UI</h1>\n"
++"\t\t<h1>U-Boot</h1>\n"
+ "\t\t<form method=\"post\" enctype=\"multipart/form-data\">\n"
+ "\t\t\t<input type=file name=firmware>\n"
+ "\t\t\t<input type=submit>\n"
+@@ -76,7 +75,7 @@ static const char data_flash_html[] =
+ "<html>\n"
+ "\t<head>\n"
+ "\t\t<title>\n"
+-"\t\t\tFailsafe UI\n"
++"\t\t\tU-Boot\n"
+ "\t\t</title>\n"
+ "\t</head>\n"
+ "\t<body>\n"
+diff -uprN a/net/uip-0.9/httpd.c b/net/uip-0.9/httpd.c
+--- a/net/uip-0.9/httpd.c	2013-12-30 03:55:04.561191084 +0100
++++ b/net/uip-0.9/httpd.c	2013-12-30 04:14:24.418592204 +0100
+@@ -8,9 +8,6 @@
+ #define HTTP_FILE		1
+ #define HTTP_FIRMWARE		2
+ 
+-#define PRINT(x) printf("%s", x)
+-#define PRINTLN(x) printf("%s\n", x)
+-
+ extern unsigned long do_http_tmp_address(void);
+ 
+ struct httpd_state *hs;
+@@ -21,7 +18,7 @@ extern const struct fsdata_file file_fla
+ extern int httpd_upload_complete;
+ extern unsigned char *httpd_upload_data;
+ unsigned char *upload_data;
+-extern ulong		NetBootFileXferSize;
++extern ulong NetBootFileXferSize;
+ int upload_running = 0;
+ 
+ #define ISO_G        0x47
+@@ -47,6 +44,9 @@ static char eol[3] = { 0x0d, 0x0a, 0x00
+ static char eol2[5] = { 0x0d, 0x0a, 0x0d, 0x0a, 0x00 };
+ static char boundary[128];
+ static int boundary_len = 0;
++static int status = 0;
++static int post_split = 0;
++static int len = 0;
+ 
+ /* we use this so that we can do without the ctype library */
+ #define is_digit(c)	((c) >= '0' && (c) <= '9')
+@@ -120,8 +120,7 @@ httpd_appcall(void)
+ 					}
+ 				}
+ 
+-				PRINT("request for file ");
+-				PRINTLN(&uip_appdata[4]);
++				printf("request for file %s\n", &uip_appdata[4]);
+ 				if(uip_appdata[4] == ISO_slash &&
+ 					uip_appdata[5] == 0)
+ 				{
+@@ -129,7 +128,7 @@ httpd_appcall(void)
+ 				} else {
+ 					if(!fs_open((const char *)&uip_appdata[4], &fsfile))
+ 					{
+-						PRINTLN("couldn't open file");
++						printf("couldn't open file\n");
+ 						fs_open(file_404_html.name, &fsfile);
+ 					}
+ 				}
+@@ -142,11 +141,11 @@ httpd_appcall(void)
+ 			{
+ 				unsigned char *start = (unsigned char*)uip_appdata;
+ 				char *clen = strstr((char *)start, "Content-Length:");
+-				int len = 0;
+-				unsigned char *next, *end;
+-				unsigned char *boundary_start;
++				unsigned char *next = NULL, *end = NULL;
++				unsigned char *boundary_start = NULL;
+ 				int i;
+ 				uip_appdata[uip_len] = '\0';
++				post_split = 0;
+ 				if(clen)
+ 				{
+ 					clen += sizeof("Content-Length:");
+@@ -192,28 +191,29 @@ httpd_appcall(void)
+ 				next = (unsigned char *)strstr((char *)boundary_start, "name=\"firmware\";");
+ 				if(!next)
+ 				{
+-					uip_close();
+-					return;
++					post_split = 1;
++					printf("http post split\n");
+ 				}
+-				next = (unsigned char *)strstr((char *)next, eol2);
+-				if(!next)
+-				{
+-					printf("could not find start of data\n");
+-					uip_close();
+-					return;
++				else {
++					next = (unsigned char *)strstr((char *)next, eol2);
++					if(!next)
++					{
++						printf("could not find start of data\n");
++						uip_close();
++						return;
++					}
++					next += 4;
++					hs->script = 0;
++					hs->state = HTTP_FIRMWARE;
++					hs->upload = uip_len - (next - start);
++					hs->upload_total = len - (int)(next - boundary_start);
++					hs->upload_total -= (strlen(boundary) + 6);
++					for(i = 0; i < hs->upload; i++)
++						upload_data[i] = next[i];
++					upload_data += (int)hs->upload;
++					uip_slen = 0;
++					status = 0;
+ 				}
+-				next += 4;
+-				hs->script = 0;
+-				hs->state = HTTP_FIRMWARE;
+-				hs->upload = uip_len - (next - start);
+-				hs->upload_total = len - (int)(next - boundary_start);
+-				hs->upload_total -= (strlen(boundary) + 6);
+-				//printf("storing %d bytes at %p\n", (int)hs->upload, upload_data);
+-				for(i = 0; i < hs->upload; i++)
+-					upload_data[i] = next[i];
+-				upload_data += (int)hs->upload;
+-				printf("%d / %d\n", (int)hs->upload, hs->upload_total);
+-				uip_slen = 0;
+ 				return;
+ 			}
+ 		}
+@@ -223,24 +223,63 @@ httpd_appcall(void)
+ 			if(uip_newdata())
+ 			{
+ 				int i;
++
+ 				hs->count = 0;
+ 				uip_appdata[uip_len] = '\0';
+-				hs->upload += uip_len;
+-				//printf("storing %d bytes at %p\n", uip_len, upload_data);
+-				printf("%d / %d\n", (int)hs->upload, hs->upload_total);
+-				for(i = 0; i < uip_len; i++)
+-					upload_data[i] = uip_appdata[i];
+-				upload_data += uip_len;
+-				uip_slen = 0;
+-				if(hs->upload >= hs->upload_total)
+-				{
+-					upload_running = 1;
+-					NetBootFileXferSize = hs->upload_total;
+-					fs_open(file_flash_html.name, &fsfile);
++
++				if(post_split) {
++					unsigned char *start = (unsigned char*)uip_appdata;
++					unsigned char *next = NULL;
++
++					status = 0;
++					post_split = 0;
++
++					next = (unsigned char *)strstr((char *)start, "name=\"firmware\";");
++					if(!next)
++					{
++						uip_close();
++						return;
++					}
++
++					next = (unsigned char *)strstr((char *)next, eol2);
++					if(!next)
++					{
++						printf("could not find start of data\n");
++						uip_close();
++						return;
++					}
++					next += 4;
+ 					hs->script = 0;
+-					hs->state = HTTP_FILE;
+-					hs->dataptr = fsfile.data;
+-					hs->count = fsfile.len;
++					hs->state = HTTP_FIRMWARE;
++					hs->upload = uip_len - (next - start);
++					hs->upload_total = len - (next - start);
++					for(i = 0; i < hs->upload; i++)
++						upload_data[i] = next[i];
++					upload_data += (int)hs->upload;
++					uip_slen = 0;
++				}
++				else {
++					hs->upload += uip_len;
++					for(i = 0; i < uip_len; i++)
++						upload_data[i] = uip_appdata[i];
++					upload_data += uip_len;
++					uip_slen = 0;
++					if(hs->upload >= hs->upload_total)
++					{
++						upload_running = 1;
++						NetBootFileXferSize = hs->upload_total;
++						fs_open(file_flash_html.name, &fsfile);
++						hs->script = 0;
++						hs->state = HTTP_FILE;
++						hs->dataptr = fsfile.data;
++						hs->count = fsfile.len;
++						status = 100;
++						printf("%d%%\n", status);
++					}
++					else if((hs->upload * 100) / hs->upload_total > status) {
++						status++;
++						printf("%d%%\n", status);
++					}
+ 				}
+ 			}
+ 		}
+@@ -260,8 +299,6 @@ httpd_appcall(void)
+ 					if(upload_running)
+ 					{
+ 						httpd_upload_complete = 1;
+-					//	for(i = 0; i < hs->upload_total; i++)
+-					//		printf("%c", httpd_upload_data[i]);
+ 					}
+ 					uip_close();
+ 				}

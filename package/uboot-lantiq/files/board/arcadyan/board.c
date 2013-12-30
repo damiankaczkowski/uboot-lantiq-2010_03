@@ -227,17 +227,22 @@ int checkboard (void)
 {
 	unsigned long chipid = *DANUBE_MPS_CHIPID;
 	int part_num;
+	char buf[32];
 
 	puts ("Board: "CONFIG_ARCADYAN"\n");
-	puts ("SoC: ");
+	puts ("SoC:   ");
 
 	part_num = DANUBE_MPS_CHIPID_PARTNUM_GET(chipid);
 	switch (part_num)
 	{
 	case 0x129:
-	case 0x12D:
-	case 0x12b: 
-		puts("Danube/Twinpass/Vinax-VE ");
+		puts("Danube ");
+		break;
+	case 0x12b:
+		puts("Danube-S ");
+		break;
+	case 0x12d:
+		puts("Twinpass ");
 		break;
 	default:
 		printf ("unknown, chip part number 0x%03X ", part_num);
@@ -245,9 +250,8 @@ int checkboard (void)
 	}
 	printf ("V1.%ld\n", DANUBE_MPS_CHIPID_VERSION_GET(chipid));
 
-	printf("DDR Speed %ld MHz\n", ifx_get_ddr_hz()/1000000);
-	printf("CPU Speed %ld MHz\n", ifx_get_cpuclk()/1000000);
-
+	printf("CPU:   %s MHz\n", strmhz(buf, ifx_get_cpuclk()));
+	printf("DDR:   %s MHz\n", strmhz(buf, ifx_get_ddr_hz()));
 
 	return 0;
 }

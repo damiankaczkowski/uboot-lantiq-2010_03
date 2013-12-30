@@ -243,9 +243,9 @@ int checkboard (void)
 		printf ("unknown, chip part number 0x%03X ", part_num);
 		break;
 	}
-	printf ("V1.%ld, ", DANUBE_MPS_CHIPID_VERSION_GET(chipid));
+	printf ("V1.%ld\n", DANUBE_MPS_CHIPID_VERSION_GET(chipid));
 
-	printf("DDR Speed %ld MHz, ", ifx_get_ddr_hz()/1000000);
+	printf("DDR Speed %ld MHz\n", ifx_get_ddr_hz()/1000000);
 	printf("CPU Speed %ld MHz\n", ifx_get_cpuclk()/1000000);
 
 

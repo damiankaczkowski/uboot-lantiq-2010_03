@@ -1,0 +1,15 @@
+#ifndef __CONFIG_H_7510PW22
+#define __CONFIG_H_7510PW22
+
+#define CONFIG_ARV7510PW22	1
+#define CONFIG_ARCADYAN		"ARV7510PW22"
+
+#define CONFIG_SYS_MAX_RAM	64*1024*1024
+#define CONFIG_USE_DDR_PSC_64	1
+#define	CONFIG_SYS_PROMPT	"ARV7510PW22 => "
+
+#define CONFIG_AR8216_SWITCH	1
+
+#include "arcadyan-common.h"
+
+#endif

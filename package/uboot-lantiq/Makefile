@@ -55,6 +55,9 @@ Package/uboot-lantiq-arv3527P_brnboot=$(call Package/uboot-lantiq-template,arv35
 Package/uboot-lantiq-arv4518PW_flash=$(call Package/uboot-lantiq-template,arv4518PW_flash,NOR)
 Package/uboot-lantiq-arv4518PW_ramboot=$(call Package/uboot-lantiq-template,arv4518PW_ramboot,RAM)
 Package/uboot-lantiq-arv4518PW_brnboot=$(call Package/uboot-lantiq-template,arv4518PW_brnboot,BRN)
+Package/uboot-lantiq-arv4519PW_flash=$(call Package/uboot-lantiq-template,arv4519PW_flash,NOR)
+Package/uboot-lantiq-arv4519PW_ramboot=$(call Package/uboot-lantiq-template,arv4519PW_ramboot,RAM)
+Package/uboot-lantiq-arv4519PW_brnboot=$(call Package/uboot-lantiq-template,arv4519PW_brnboot,BRN)
 Package/uboot-lantiq-arv4520PW_flash=$(call Package/uboot-lantiq-template,arv4520PW_flash,NOR)
 Package/uboot-lantiq-arv4520PW_ramboot=$(call Package/uboot-lantiq-template,arv4520PW_ramboot,RAM)
 Package/uboot-lantiq-arv4520PW_brnboot=$(call Package/uboot-lantiq-template,arv4520PW_brnboot,BRN)
@@ -80,6 +83,7 @@ Package/uboot-lantiq-arv752DPW22_brnboot=$(call Package/uboot-lantiq-template,ar
 
 DDR_CONFIG_arv3527P_ramboot:=arcadyan_psc166_32
 DDR_CONFIG_arv4518PW_ramboot:=arcadyan_psc166_64
+DDR_CONFIG_arv4519PW_ramboot:=arcadyan_psc166_32
 DDR_CONFIG_arv4520PW_ramboot:=arcadyan_psc166_32
 DDR_CONFIG_arv4525PW_ramboot:=arcadyan_psc166_32
 DDR_CONFIG_arv452CPW_ramboot:=arcadyan_psc166_32
@@ -156,6 +160,9 @@ $(eval $(call BuildPackage,uboot-lantiq-gigaSX76X_DDRsamsung166))
 $(eval $(call BuildPackage,uboot-lantiq-arv4518PW_flash))
 $(eval $(call BuildPackage,uboot-lantiq-arv4518PW_brnboot))
 $(eval $(call BuildPackage,uboot-lantiq-arv4518PW_ramboot))
+$(eval $(call BuildPackage,uboot-lantiq-arv4519PW_flash))
+$(eval $(call BuildPackage,uboot-lantiq-arv4519PW_brnboot))
+$(eval $(call BuildPackage,uboot-lantiq-arv4519PW_ramboot))
 $(eval $(call BuildPackage,uboot-lantiq-arv4520PW_flash))
 $(eval $(call BuildPackage,uboot-lantiq-arv4520PW_brnboot))
 $(eval $(call BuildPackage,uboot-lantiq-arv4520PW_ramboot))
